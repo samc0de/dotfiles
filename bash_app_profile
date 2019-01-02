@@ -1,0 +1,25 @@
+# Bash profile for neutroncli.
+source $HOME/.bash_profile
+
+# alias cndactivate='PYTHONIOENCODING=utf-8 source activate'
+cd $HOME/neutron-cli/neutron-cli
+# Correct conda env.
+cndactivate neutron-new-pycharm
+# export WHOWHAT=''
+# Ensure correct conda env py is used. In interactive test, /usr/bin/env python starts (parent conda?) netron-new-pycharm, which seems correct. Or hardcode python bin at the start of cmd.
+if [ -z ${JUST_RUN+x} ];
+then 
+    echo ''
+else 
+    echo 6ff44645-0e9d-4639-b106-ffda221c47a2
+    # export WHOWHAT='6ff44645-0e9d-4639-b106-ffda221c47a2'
+fi
+
+# alias ncli="echo $WHOWHAT | src/python/neutroncli/neutron_cli.py --log-level info --username plasma-react-service --capture-traceback";
+alias ncli="src/python/neutroncli/neutron_cli.py --log-level info --username plasma-react-service --capture-traceback";
+
+alias ncli-tr="ncli --env training"
+alias ncli-kh-tr="ncli --env kittyhawk-training"
+alias ncli-kh-b="ncli --env kittyhawk-beta"
+alias ncli-kh-s="ncli --env kittyhawk-sig"
+alias ncli-s="ncli --env staging"
