@@ -11,7 +11,7 @@
 noremap ; :
 set t_Co=256  " Set 256 colors. Is it working?
 " colors my-industry-gray  " Gray colour scheme.
-colors slate
+" colors gruvbox
 " For mac, these look good:
 " Slate, peachpuff, pablo.
 " Industry, evening, morning, murphy, shine, torte.
@@ -27,8 +27,8 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 Plugin 'gmarik/Vundle.vim'
 
-call vundle#end()            " required
-filetype plugin indent on    " required
+" call vundle#end()            " required
+" filetype plugin indent on    " required
 
 
 """"""""""""""""""""""""""""" Tab and space section """"""""""""""""""""""""""
@@ -62,6 +62,26 @@ highlight BadWhitespace ctermbg=red guibg=red
 au BufRead,BufNewFile *.py,*.pyw match BadWhitespace /^\t\+/
 " Make trailing whitespace be flagged as bad.
 au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
+
+" Remove trailing whitespaces, above is good only for python files.
+nnoremap <F5> :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
+
+" Another approach, this and above both are taken from:
+" https://vi.stackexchange.com/q/454/3012
+fun! TrimWhitespace()
+    let l:save = winsaveview()
+    keeppatterns %s/\s\+$//e
+    call winrestview(l:save)
+endfun
+
+" Above is only for python, this one is needed for java so added, remove if problematic.
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+autocmd InsertEnter * match ExtraWhitespace /\s\+\%#\@<!$/
+autocmd InsertLeave * match ExtraWhitespace /\s\+$/
+autocmd BufWinLeave * call clearmatches()
+" Till here.
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -104,9 +124,7 @@ syntax on
 filetype indent on
 " Keep indentation level from previous line: ``set autoindent``
 set autoindent
-autocmd FileType python let b:dispatch = 'python2 %'
-" Pep8 check. NOT WORKING.
-" autocmd BufWritePost *.py call Flake8()
+autocmd FileType python let b:dispatch = 'python3 %'
 nnoremap <F9> :Dispatch<CR>
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -136,27 +154,86 @@ if argc() == 0
   au VimEnter * nested :call LoadSession()
 end
 au VimLeave * :call MakeSession()
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" Clipboard supprt:
+" set clipboard=unnamedplus
+set clipboard=unnamed
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 """"""""""""""""""""""""""""" Plugins Section """"""""""""""""""""""""""""""""
+" Take a look at:
+
 " Plugin 'Valloric/YouCompleteMe'  " Using Google's one.
-Plugin 'davidhalter/jedi-vim'
+" Plugin 'davidhalter/jedi-vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'scrooloose/nerdcommenter'
 Plugin 'jlanzarotta/bufexplorer'
+" This ctrlp now has an active alternative, check that."
 Plugin 'kien/ctrlp.vim'
 " Experimental brackets closing etc settings. Reverse interesting order.
 Plugin 'jiangmiao/auto-pairs'
 Plugin 'tpope/vim-surround'
 Plugin 'tpope/vim-fugitive'
-Plugin 'Valloric/YouCompleteMe'
+" Plugin 'Valloric/YouCompleteMe'
+
+" Airline status bar: NOT WORKING IN A GIT REPO ATM.
+" Plugin 'vim-airline/vim-airline'
+" Plugin 'vim-airline/vim-airline-themes'
+
 " Plugin 'Townk/vim-autoclose'
+" Go lang
+Plugin 'fatih/vim-go'
+" Rust lang
+Plugin 'rust-lang/rust.vim'
+" Add a plugin for elixir and maybe phoenix.
+" TODO plugin!
+Plugin 'aserebryakov/vim-todo-lists'
+" A great colorscheme!
+Plugin 'morhetz/gruvbox'
+
+" let g:gruvbox_(option) = '(value)'
+
+" Python highlight?
+Plugin 'vim-python/python-syntax'
+
+" Need some light schemes.
+Plugin 'junegunn/seoul256.vim'
+Plugin 'scheakur/vim-scheakur'
+Plugin 'rakr/vim-one'
+Plugin 'rakr/vim-two-firewatch'
+Plugin 'flazz/vim-colorschemes'
+Plugin 'arzg/vim-corvine'
+" A colorscheme 'ice-age' has been added manually, it's been archived by its
+" author. It's in ~/.vim/bundle/vim-colorschemes/colors/ice-age.vim.
+Plugin 'atelierbram/vim-colors_atelier-schemes'
+
+" Here is a dark plugin, which has a very good light theme fork.
+Plugin 'romainl/Apprentice'
+Plugin 'wimstefan/Lightning'
+
+" Language support for nim.
+Bundle 'zah/nim.vim'
 
 " Async and test dispatcher. Remove if doesn't show python output in next buf.
 Plugin 'tpope/vim-dispatch'
 
-" Pep8 checker.
-" Plugin 'nvie/vim-flake8'
+" Plugin 'godlygeek/tabular'
+" Plugin 'preservim/vim-markdown'
+" Markdown preview
+" Plugin 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+Plugin 'iamcco/markdown-preview.nvim'
+Plugin 'ziglang/zig.vim'
+let g:mkdp_browser = 'google-chrome'
+Plugin 'Exafunction/codeium.vim'
+
+"" neovim only
+"" main one
+"Plugin 'ms-jpq/coq_nvim', {'branch': 'coq'}
+"" 9000+ Snippets
+"Plugin 'ms-jpq/coq.artifacts', {'branch': 'artifacts'}
+
 
 " Alternative for youcompleteme
 " Plugin 'vim-scripts/AutoComplPop'
@@ -172,10 +249,11 @@ Plugin 'tpope/vim-dispatch'
 " Plugin 'Zuckonit/vim-airline-tomato'
 
 """""""""""""""""""""""""""""  End of Plugins  """""""""""""""""""""""""""""""
+call vundle#end()            " required
+filetype plugin indent on    " required
 
 
 """"""""""""""""""""""""""""" Misc options """""""""""""""""""""""""""""""""""
-set encoding=utf-8  " For YouCompleteMe.
 set nocompatible  " Be improved, no compatibility with vi.
 set hlsearch  " Saerch highlighting
 set incsearch  " Incremental/live search
@@ -187,11 +265,11 @@ set mouse=a  " All mouse actions.
 " set omnifunc=javascriptcomplete#CompleteJS" A commented out cmd, ! a comment
 autocmd FileType javascript set omnifunc=javascriptcomplete#CompleteJS
 " Open all the folds
-map F zM
+" map F zM
 " Close all the folds
-map <C-f> zR
+" map <C-f> zR
 " Toggle fold on the current line
-map f za
+" map f za
 "map <F3> :30Vex .<CR>
 " map <silent><C-Left> <ESC>:bn<CR>
 " map <silent><C-Right> <ESC>:bp<CR>
@@ -201,7 +279,7 @@ noremap <silent> <F4> :NERDTreeToggle <CR>
 noremap <silent> <F3> :BufExplorer <CR>
 
 " Save session and quit vim, to reopen with the same session.
-nmap <silent>\wq <ESC>:quitall<CR>  " Not sure this is elegant.
+" nmap <silent>\wq <ESC>:quitall<CR>  " Not sure this is elegant.
 
 " noremap <silent> <F7> :QFix <CR> " What plugin??
 " noremap <silent> ,c :Ack "//\ *TODO" <CR>  " This Ack doens't work
@@ -226,7 +304,6 @@ set tabstop=4
 set expandtab
 " Generalized till here
 au BufRead,BufNewFile *.py,*.pyw set foldmethod=indent
-se foldignore=
 
 " Set *.ng filetype syntax highlighting and plugins for *.ng files.
 au BufRead,BufNewFile *.ng set ft=html
@@ -254,17 +331,9 @@ nmap <silent>\oe <ESC>:tabe<CR> :e
 nmap <silent>\o <ESC> exec OpenTabNDir
 nmap <silent>\qt <ESC>:tabc<CR>
 nmap :qt :tabc
-" nmap ot :tabe<CR>
-nmap \o :tabe<CR>
+nmap :ot :tabe
 nmap ;ot :tabe
 
-
-"""""""""""""""""""""""""" JSON Formatting """"""""""""""""""""""""""""
-" nmap jsonf :execute '%!python -m json.tool' | w<CR>
-" nmap jsonf :execute '%!python -m json.tool'<CR>
-nmap \jf :execute '%!python -m json.tool'<CR>
-
-"""""""""""""""""""""""""" persistent undo buffer """"""""""""""""""""""""""""
 
 """""""""""""""""""""""""" swap file management """"""""""""""""""""""""""""
 set backupdir=~/.vimdir//
@@ -277,6 +346,10 @@ set undodir=$HOME/.vim/undo " where to save undo histories
 set undolevels=1000         " How many undos
 set undoreload=10000        " number of lines to save for undo
 
+
+""""""""""""""""""""""""""""""""  Text Width   """"""""""""""""""""""""""""""
+
+call matchadd('ColorColumn', '\%81v\s*\zs\S', 100)
 
 """""""""""""""""""""""""" UTF-8 decoration """"""""""""""""""""""""""""
 " modify selected text using combining diacritics
@@ -291,80 +364,19 @@ function! s:CombineSelection(line1, line2, cp)
 endfunction
 
 
-"""""""""""""""""""""""""" Project specific vimrc """"""""""""""""""""""""""""
-" set exrc
-set secure
+" Settings for plugin 'vim-airline/vim-airline-themes'
+set ttimeoutlen=50
+set encoding=utf-8
 
+" Start in a nice colour scheme. TODO: Do light/dark schemes based on times.
+" colo PaperColor
+colo gruvbox
+" colo graywh
+"
+" List contents of all registers (that typically contain pasteable text).
+nnoremap <silent> "" :registers "0123456789abcdefghijklmnopqrstuvwxyz*+.<CR>
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-""""                            Google Settings                           """"
-""""                                                                      """"
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" "" Kept at the bottom to override in case of conflicts.
-" set nocompatible
-" source /usr/share/vim/google/google.vim
-" filetype plugin indent on
-" syntax on
-" 
-" Glug ft-python
-" Glug ft-javascript
-" Glug youcompleteme-google
-" Glug autogen
-" " Glug blaze
-" " Glug blazedeps
-" " Glug blazebuild-fold
-" 
-" " Gtags
-" source /usr/share/vim/google/gtags.vim
-" 
-" " These don't automatically load up, they need to be Glug'ed.
-" Glug alert
-" Glug clang-format
-" Glug codefmt
-" Glug compatibility
-" Glug corpweb
-" Glug critique
-" " Glug deprecated
-" Glug easygoogle
-" Glug fileswitch
-" Glug findinc
-" Glug ft-cpp
-" " Glug ft-java
-" Glug ft-javascript
-" Glug ft-proto
-" Glug ft-python
-" " Glug ft-soy
-" Glug g4
-" Glug git5
-" Glug glaive
-" Glug glug
-" " Glug gocode
-" Glug google-filetypes
-" " Glug google-logo
-" Glug googlepaths
-" Glug googler
-" Glug googlespell
-" Glug googlestyle
-" Glug grok
-" " Glug gtimporter
-" Glug helloworld
-" Glug launchbrowser
-" Glug lcov  " Deprecated.
-" Glug legacy
-" Glug logmsgs
-" Glug maktaba
-" Glug mru
-" Glug outline-window
-" Glug piper
-" Glug refactorer
-" Glug relatedfiles
-" Glug safetmpdirs
-" Glug scampi
-" Glug selector
-" Glug syntastic-google
-" Glug ultisnips-google
-" Glug vcscommand-g4
-" Glug whitespace
+se background=dark
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " TODO: Set abbrs, say for function, try: except blocks, maybe for closing )"s.
